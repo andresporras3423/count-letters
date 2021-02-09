@@ -3,6 +3,9 @@ package global;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.Random;
 
 public class start {
 	static BufferedReader reader = new BufferedReader( new InputStreamReader(System.in)); 
+	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 	public static void main(String[] args) throws IOException  {
 		int follow=0;
 			do {
@@ -25,10 +29,14 @@ public class start {
 		System.out.println("Type how many questions:");	
         int total = Integer.parseInt(reader.readLine());
         int sols=0;
+        LocalDateTime initial = LocalDateTime.now();  
         for(int i=0; i<total; i++) {
         	if(question()) sols++;
         }
+        LocalDateTime end = LocalDateTime.now(); 
+        long diff = ChronoUnit.SECONDS.between(initial, end);
         System.out.println("Final score: "+sols+"/"+total);
+        System.out.println("Time: "+diff+" seconds");
 	}
 	
 	public static boolean question() throws IOException{
