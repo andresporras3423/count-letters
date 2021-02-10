@@ -16,23 +16,46 @@ import java.util.Random;
 public class start {
 	static BufferedReader reader = new BufferedReader( new InputStreamReader(System.in)); 
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-	static int tLetters =0;
-	static int letters_x =0;
+	static int total =5;
+	static int tLetters =50;
+	static int letters_x =10;
 	public static void main(String[] args) throws IOException  {
-		int follow=0;
-			do {
-				play_exam();
-				System.out.println("Do you want to play again?: 1) yes 2) no");	
-		        follow = Integer.parseInt(reader.readLine());
-			}while(follow==1);
+		System.out.println("WELCOME");
+		options();
+	}
+	
+	public static void options() throws NumberFormatException, IOException {
+		System.out.println("please choose one option:");	
+		System.out.println("1) play");	
+		System.out.println("2) settings");	
+		System.out.println("3) exit");	
+        int opt = Integer.parseInt(reader.readLine());
+        if(opt==1) play_exam();
+        else if(opt==2) settings();
+        else System.out.println("Bye bye!");
+	}
+	
+	public static void settings() throws NumberFormatException, IOException {
+		System.out.println("Choose a setting to update:");	
+		System.out.println("1) N° of questions");	
+		System.out.println("2) N° of letters");	
+		System.out.println("3) Main menu");	
+		int opt = Integer.parseInt(reader.readLine());
+		if(opt==1) {
+			System.out.println("Type how many questions:");	
+	       total = Integer.parseInt(reader.readLine());
+	       settings();
+		}
+		else if(opt==2) {
+			System.out.println("Type how many letters:");	
+		    tLetters = Integer.parseInt(reader.readLine());
+		    letters_x = (int) Math.round(Math.pow(2*tLetters, 0.5));
+		    settings();
+		}
+		else options();
 	}
 	
 	public static void play_exam() throws NumberFormatException, IOException {
-		System.out.println("Type how many questions:");	
-        int total = Integer.parseInt(reader.readLine());
-        System.out.println("Type how many letters:");	
-       tLetters = Integer.parseInt(reader.readLine());
-       letters_x = (int) Math.round(Math.pow(2*tLetters, 0.5));
         int sols=0;
         LocalDateTime initial = LocalDateTime.now();  
         for(int i=0; i<total; i++) {
@@ -43,6 +66,7 @@ public class start {
         long diff = ChronoUnit.SECONDS.between(initial, end);
         System.out.println("Final score: "+sols+"/"+total);
         System.out.println("Time: "+diff+" seconds");
+        options();
 	}
 	
 	public static boolean question() throws IOException{
