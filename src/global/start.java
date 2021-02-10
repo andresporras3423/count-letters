@@ -31,6 +31,7 @@ public class start {
         int sols=0;
         LocalDateTime initial = LocalDateTime.now();  
         for(int i=0; i<total; i++) {
+        	System.out.println("Questions N°"+(i+1)+")");
         	if(question()) sols++;
         }
         LocalDateTime end = LocalDateTime.now(); 
