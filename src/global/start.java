@@ -16,11 +16,13 @@ import java.util.Random;
 public class start {
 	static BufferedReader reader = new BufferedReader( new InputStreamReader(System.in)); 
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+	static int tLetters =0;
+	static int letters_x =0;
 	public static void main(String[] args) throws IOException  {
 		int follow=0;
 			do {
 				play_exam();
-				System.out.println("Do you wan't to play again?: 1) yes 2) no");	
+				System.out.println("Do you want to play again?: 1) yes 2) no");	
 		        follow = Integer.parseInt(reader.readLine());
 			}while(follow==1);
 	}
@@ -28,6 +30,9 @@ public class start {
 	public static void play_exam() throws NumberFormatException, IOException {
 		System.out.println("Type how many questions:");	
         int total = Integer.parseInt(reader.readLine());
+        System.out.println("Type how many letters:");	
+       tLetters = Integer.parseInt(reader.readLine());
+       letters_x = (int) Math.round(Math.pow(2*tLetters, 0.5));
         int sols=0;
         LocalDateTime initial = LocalDateTime.now();  
         for(int i=0; i<total; i++) {
@@ -54,11 +59,11 @@ public class start {
 	        subList.add(n);
 	        letters.remove(current);
         }
-        for(int j=0; j<50;j++) {
+        for(int j=0; j<tLetters;j++) {
 	        int index = rand.nextInt(subList.size());
 	        if(index==0) sol++;
 	        word+=subList.get(index);
-	        if((j+1)%10==0) word+="\n";
+	        if((j+1)%letters_x==0) word+="\n";
         }
         System.out.println("Find how many "+subList.get(0)+"'s?:");
         System.out.println(word);	
