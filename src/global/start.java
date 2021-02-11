@@ -3,6 +3,9 @@ package global;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -14,14 +17,41 @@ import java.util.Random;
 
 
 public class start {
+	
 	static BufferedReader reader = new BufferedReader( new InputStreamReader(System.in)); 
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-	static int total =5;
+	static int questions =5;
 	static int tLetters =50;
 	static int letters_x =10;
+	public static sql_connection s = new sql_connection();
 	public static void main(String[] args) throws IOException  {
+		get_total_questions();
+		get_total_letters();
 		System.out.println("WELCOME");
 		options();
+	}
+	
+	public static void get_total_questions() {
+		try {
+			Statement st = s.connect();
+			ResultSet rs = st.executeQuery("select top 1 val from config_game where property='questions'");
+			while(rs.next())  questions = rs.getInt("val");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void get_total_letters() {
+		try {
+			Statement st = s.connect();
+			ResultSet rs = st.executeQuery("select top 1 val from config_game where property='total_letters'");
+			while(rs.next())  tLetters = rs.getInt("val");
+			letters_x = (int) Math.round(Math.pow(2*tLetters, 0.5));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public static void options() throws NumberFormatException, IOException {
@@ -43,7 +73,7 @@ public class start {
 		int opt = Integer.parseInt(reader.readLine());
 		if(opt==1) {
 			System.out.println("Type how many questions:");	
-	       total = Integer.parseInt(reader.readLine());
+	       questions = Integer.parseInt(reader.readLine());
 	       settings();
 		}
 		else if(opt==2) {
@@ -58,13 +88,13 @@ public class start {
 	public static void play_exam() throws NumberFormatException, IOException {
         int sols=0;
         LocalDateTime initial = LocalDateTime.now();  
-        for(int i=0; i<total; i++) {
+        for(int i=0; i<questions; i++) {
         	System.out.println("Questions N°"+(i+1)+")");
         	if(question()) sols++;
         }
         LocalDateTime end = LocalDateTime.now(); 
         long diff = ChronoUnit.SECONDS.between(initial, end);
-        System.out.println("Final score: "+sols+"/"+total);
+        System.out.println("Final score: "+sols+"/"+questions);
         System.out.println("Time: "+diff+" seconds");
         options();
 	}
