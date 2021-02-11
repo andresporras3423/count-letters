@@ -54,6 +54,24 @@ public class start {
 		}
 	}
 	
+	public static void update_total_letters(int nVal) {
+		try {
+			Statement st = s.connect();
+			int result = st.executeUpdate("update config_game set val="+nVal+" where property='total_letters'");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void update_total_questions(int nVal) {
+		try {
+			Statement st = s.connect();
+			int result = st.executeUpdate("update config_game set val="+nVal+" where property='questions'");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void options() throws NumberFormatException, IOException {
 		System.out.println("please choose one option:");	
 		System.out.println("1) play");	
@@ -74,12 +92,14 @@ public class start {
 		if(opt==1) {
 			System.out.println("Type how many questions:");	
 	       questions = Integer.parseInt(reader.readLine());
+	       update_total_questions(questions);
 	       settings();
 		}
 		else if(opt==2) {
 			System.out.println("Type how many letters:");	
 		    tLetters = Integer.parseInt(reader.readLine());
 		    letters_x = (int) Math.round(Math.pow(2*tLetters, 0.5));
+		    update_total_letters(tLetters);
 		    settings();
 		}
 		else options();
