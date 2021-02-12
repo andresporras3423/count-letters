@@ -119,6 +119,7 @@ public class start {
 		LocalDateTime end = LocalDateTime.now(); 
         long diff = ChronoUnit.SECONDS.between(initial, end);
         save_final_score(sols, diff);
+        show_top_similars(sols, diff);
         System.out.println("Final score: "+sols+"/"+questions);
         System.out.println("Time: "+diff+" seconds");
         options();
@@ -128,6 +129,20 @@ public class start {
 		try {
 			Statement st = s.connect();
 			int result = st.executeUpdate("insert into scores (questions, letters, seconds, correct, daytime) values("+questions+", "+tLetters+", "+diff+", "+sols+", CURRENT_TIMESTAMP)");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void show_top_similars(int sols, long diff) {
+		try {
+			Statement st = s.connect();
+			ResultSet rs = st.executeQuery("select top 10 questions, correct, seconds, (seconds*(questions+1-correct)) as score, daytime from scores where questions="+questions+" and letters="+tLetters+" order by (seconds*(questions+1-correct)), correct");
+			int i=1;
+			while(rs.next()) {
+				System.out.println(""+i+") questions: "+rs.getInt("questions")+", correct: "+rs.getInt("correct")+", seconds: "+rs.getInt("seconds")+", score: "+rs.getInt("score")+", date: "+rs.getTimestamp("daytime")+"");
+				i++;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
