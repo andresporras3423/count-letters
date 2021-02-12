@@ -112,11 +112,25 @@ public class start {
         	System.out.println("Questions N°"+(i+1)+")");
         	if(question()) sols++;
         }
-        LocalDateTime end = LocalDateTime.now(); 
+        end_game(sols, initial);
+	}
+	
+	public static void end_game(int sols, LocalDateTime initial) throws NumberFormatException, IOException {
+		LocalDateTime end = LocalDateTime.now(); 
         long diff = ChronoUnit.SECONDS.between(initial, end);
+        save_final_score(sols, diff);
         System.out.println("Final score: "+sols+"/"+questions);
         System.out.println("Time: "+diff+" seconds");
         options();
+	}
+	
+	public static void save_final_score(int sols, long diff) {
+		try {
+			Statement st = s.connect();
+			int result = st.executeUpdate("insert into scores (questions, letters, seconds, correct, daytime) values("+questions+", "+tLetters+", "+diff+", "+sols+", CURRENT_TIMESTAMP)");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static boolean question() throws IOException{
