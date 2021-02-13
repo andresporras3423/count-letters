@@ -97,8 +97,8 @@ public class start {
 		System.out.println("Choose a setting to update:");	
 		System.out.println("1) change N° of questions");	
 		System.out.println("2) change N° of letters");
-		System.out.println("2) current settings");
-		System.out.println("3) Main menu");	
+		System.out.println("3) current settings");
+		System.out.println("4) Main menu");	
 		int opt = Integer.parseInt(reader.readLine());
 		if(opt==1) {
 			System.out.println("Type how many questions:");	
@@ -116,6 +116,7 @@ public class start {
 		else if(opt==3) {
 			System.out.println("Current number of questions: "+questions);
 			System.out.println("Current number of letters: "+tLetters);
+			settings();
 		}
 		else options();
 	}
