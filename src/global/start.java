@@ -75,18 +75,29 @@ public class start {
 	public static void options() throws NumberFormatException, IOException {
 		System.out.println("please choose one option:");	
 		System.out.println("1) play");	
-		System.out.println("2) settings");	
-		System.out.println("3) exit");	
+		System.out.println("2) settings");
+		System.out.println("3) Top scores for current settings");
+		System.out.println("4) Recent scores for current settings");
+		System.out.println("5) exit");	
         int opt = Integer.parseInt(reader.readLine());
         if(opt==1) play_exam();
         else if(opt==2) settings();
+        else if(opt==3) {
+        	show_top_similars();
+        	options();
+        }
+        else if(opt==4) {
+        	show_top_recents();
+        	options();
+        }
         else System.out.println("Bye bye!");
 	}
 	
 	public static void settings() throws NumberFormatException, IOException {
 		System.out.println("Choose a setting to update:");	
-		System.out.println("1) N° of questions");	
-		System.out.println("2) N° of letters");	
+		System.out.println("1) change N° of questions");	
+		System.out.println("2) change N° of letters");
+		System.out.println("2) current settings");
 		System.out.println("3) Main menu");	
 		int opt = Integer.parseInt(reader.readLine());
 		if(opt==1) {
@@ -101,6 +112,10 @@ public class start {
 		    letters_x = (int) Math.round(Math.pow(2*tLetters, 0.5));
 		    update_total_letters(tLetters);
 		    settings();
+		}
+		else if(opt==3) {
+			System.out.println("Current number of questions: "+questions);
+			System.out.println("Current number of letters: "+tLetters);
 		}
 		else options();
 	}
@@ -119,9 +134,10 @@ public class start {
 		LocalDateTime end = LocalDateTime.now(); 
         long diff = ChronoUnit.SECONDS.between(initial, end);
         save_final_score(sols, diff);
-        show_top_similars(sols, diff);
-        System.out.println("Final score: "+sols+"/"+questions);
+        show_top_similars();
+        System.out.println("Correct questions: "+sols+"/"+questions);
         System.out.println("Time: "+diff+" seconds");
+        System.out.println("Score: "+(diff*(questions+1-sols)));
         options();
 	}
 	
@@ -134,13 +150,27 @@ public class start {
 		}
 	}
 	
-	public static void show_top_similars(int sols, long diff) {
+	public static void show_top_similars() {
 		try {
 			Statement st = s.connect();
-			ResultSet rs = st.executeQuery("select top 10 questions, correct, seconds, (seconds*(questions+1-correct)) as score, daytime from scores where questions="+questions+" and letters="+tLetters+" order by (seconds*(questions+1-correct)), correct");
+			ResultSet rs = st.executeQuery("select top 10 (seconds*(questions+1-correct)) as score, questions, correct, seconds, daytime from scores where questions="+questions+" and letters="+tLetters+" order by (seconds*(questions+1-correct)), correct");
 			int i=1;
 			while(rs.next()) {
-				System.out.println(""+i+") questions: "+rs.getInt("questions")+", correct: "+rs.getInt("correct")+", seconds: "+rs.getInt("seconds")+", score: "+rs.getInt("score")+", date: "+rs.getTimestamp("daytime")+"");
+				System.out.println(""+i+") score: "+rs.getInt("score")+", questions: "+rs.getInt("questions")+", correct: "+rs.getInt("correct")+", seconds: "+rs.getInt("seconds")+", date: "+rs.getTimestamp("daytime")+"");
+				i++;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void show_top_recents() {
+		try {
+			Statement st = s.connect();
+			ResultSet rs = st.executeQuery("select top 10 (seconds*(questions+1-correct)) as score, questions, correct, seconds, daytime from scores where questions="+questions+" and letters="+tLetters+" order by daytime desc");
+			int i=1;
+			while(rs.next()) {
+				System.out.println(""+i+") score: "+rs.getInt("score")+", questions: "+rs.getInt("questions")+", correct: "+rs.getInt("correct")+", seconds: "+rs.getInt("seconds")+", date: "+rs.getTimestamp("daytime")+"");
 				i++;
 			}
 		} catch (SQLException e) {
