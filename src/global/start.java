@@ -202,8 +202,19 @@ public class start {
         System.out.println("Find how many "+subList.get(0)+"'s?:");
         System.out.println(word);	
         String lett = reader.readLine();
-        if(Integer.parseInt(lett)==sol) System.out.println("correct");
+        boolean correct = Integer.parseInt(lett)==sol;
+        save_question(subList.get(0), correct);
+        if(correct) System.out.println("correct");
         else System.out.println("incorrect, the solution was "+sol);
-        return Integer.parseInt(lett)==sol;
+        return correct;
+	}
+	
+    public static void save_question(String question, boolean correct){
+    	try {
+			Statement st = s.connect();
+			int result = st.executeUpdate("insert into questions (question, correct, daytime) values('"+question+"', "+(correct? 1 : 0)+", CURRENT_TIMESTAMP)");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }
