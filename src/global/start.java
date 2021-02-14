@@ -76,22 +76,121 @@ public class start {
 		System.out.println("please choose one option:");	
 		System.out.println("1) play");	
 		System.out.println("2) settings");
-		System.out.println("3) Top scores for current settings");
-		System.out.println("4) Recent scores for current settings");
-		System.out.println("5) exit");	
+		System.out.println("3) game feedback");
+		System.out.println("4) exit");	
         int opt = Integer.parseInt(reader.readLine());
         if(opt==1) play_exam();
         else if(opt==2) settings();
-        else if(opt==3) {
-        	show_top_similars();
-        	options();
-        }
-        else if(opt==4) {
-        	show_top_recents();
-        	options();
-        }
+        else if(opt==3)  feedback();
         else System.out.println("Bye bye!");
 	}
+	
+	public static void feedback() throws NumberFormatException, IOException {
+		System.out.println("FEEDBACK MENU");
+		System.out.println("1) Top scores for current settings");
+		System.out.println("2) Recent scores for current settings");
+		System.out.println("3) Most errors");
+		System.out.println("4) Most corrects");
+		System.out.println("5) Recent errors");
+		System.out.println("6) Recent corrects");
+		System.out.println("7) back main menu");
+		int opt = Integer.parseInt(reader.readLine());
+        if(opt==1) show_top_similars();
+        else if(opt==2) show_top_recents();
+        else if(opt==3) most_errors();
+        else if(opt==4) most_corrects();
+        else if(opt==5) recent_errors();
+        else if(opt==6) recent_corrects();
+        else {
+        	options();
+        	return;
+        }
+        feedback();
+	}
+	
+	public static void most_errors() {
+		try {
+			Statement st = s.connect();
+			String query = """
+					   with q1 as (select question,
+                       count(*) as total,
+                       sum(case
+                       when correct=0
+                       then 1
+                       else 0
+                       end) as mistakes
+                       from questions
+                       group by question)
+                       select top 10 question, cast(mistakes*100.0/total as decimal(18,2)) as percentaje, total, mistakes
+                       from q1
+                       order by percentaje desc, total desc;
+						""";
+			ResultSet rs = st.executeQuery(query);
+			int i=1;
+			while(rs.next()) {
+				System.out.println(""+i+") question: "+rs.getString("question")+", percentage: "+rs.getFloat("percentaje")+", total: "+rs.getInt("total")+", mistakes: "+rs.getInt("mistakes"));
+				i++;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+    public static void most_corrects() {
+    	try {
+			Statement st = s.connect();
+			String query = """
+					   with q1 as (select question,
+                       count(*) as total,
+                       sum(case
+                       when correct=1
+                       then 1
+                       else 0
+                       end) as corrects
+                       from questions
+                       group by question)
+                       select top 10 question, cast(corrects*100.0/total as decimal(18,2)) as percentaje, total, corrects
+                       from q1
+                       order by percentaje desc, total desc;
+						""";
+			ResultSet rs = st.executeQuery(query);
+			int i=1;
+			while(rs.next()) {
+				System.out.println(""+i+") question: "+rs.getString("question")+", percentage: "+rs.getFloat("percentaje")+", total: "+rs.getInt("total")+", corrects: "+rs.getInt("corrects"));
+				i++;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+    public static void recent_errors() {
+    	try {
+			Statement st = s.connect();
+			ResultSet rs = st.executeQuery("select top 10 question, daytime from questions where correct=0 order by daytime desc");
+			int i=1;
+			while(rs.next()) {
+				System.out.println(""+i+") question: "+rs.getString("question")+", datetime: "+rs.getTimestamp("daytime"));
+				i++;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
+
+    public static void recent_corrects() {
+    	try {
+			Statement st = s.connect();
+			ResultSet rs = st.executeQuery("select top 10 question, daytime from questions where correct=1 order by daytime desc");
+			int i=1;
+			while(rs.next()) {
+				System.out.println(""+i+") question: "+rs.getString("question")+", datetime: "+rs.getTimestamp("daytime"));
+				i++;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    }
 	
 	public static void settings() throws NumberFormatException, IOException {
 		System.out.println("Choose a setting to update:");	
