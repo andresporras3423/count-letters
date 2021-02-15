@@ -23,10 +23,12 @@ public class start {
 	static int questions =5;
 	static int tLetters =50;
 	static int letters_x =10;
+	static int whitespace=0;
 	public static sql_connection s = new sql_connection();
 	public static void main(String[] args) throws IOException  {
 		get_total_questions();
 		get_total_letters();
+		get_whitespace();
 		System.out.println("WELCOME");
 		options();
 	}
@@ -54,6 +56,17 @@ public class start {
 		}
 	}
 	
+	public static void get_whitespace() {
+		try {
+			Statement st = s.connect();
+			ResultSet rs = st.executeQuery("select top 1 val from config_game where property='whitespace'");
+			while(rs.next())  whitespace = rs.getInt("val");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void update_total_letters(int nVal) {
 		try {
 			Statement st = s.connect();
@@ -67,6 +80,15 @@ public class start {
 		try {
 			Statement st = s.connect();
 			int result = st.executeUpdate("update config_game set val="+nVal+" where property='questions'");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void update_total_whitespace(int nVal) {
+		try {
+			Statement st = s.connect();
+			int result = st.executeUpdate("update config_game set val="+nVal+" where property='whitespace'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -196,28 +218,36 @@ public class start {
 		System.out.println("Choose a setting to update:");	
 		System.out.println("1) change N° of questions");	
 		System.out.println("2) change N° of letters");
-		System.out.println("3) current settings");
-		System.out.println("4) Main menu");	
+		System.out.println("3) change N° of whitespaces");
+		System.out.println("4) current settings");
+		System.out.println("5) Main menu");	
 		int opt = Integer.parseInt(reader.readLine());
 		if(opt==1) {
 			System.out.println("Type how many questions:");	
 	       questions = Integer.parseInt(reader.readLine());
 	       update_total_questions(questions);
-	       settings();
 		}
 		else if(opt==2) {
 			System.out.println("Type how many letters:");	
 		    tLetters = Integer.parseInt(reader.readLine());
 		    letters_x = (int) Math.round(Math.pow(2*tLetters, 0.5));
 		    update_total_letters(tLetters);
-		    settings();
 		}
 		else if(opt==3) {
+			System.out.println("Type how many whitespaces:");	
+		    whitespace = Integer.parseInt(reader.readLine());
+		    update_total_whitespace(whitespace);
+		}
+		else if(opt==4) {
 			System.out.println("Current number of questions: "+questions);
 			System.out.println("Current number of letters: "+tLetters);
-			settings();
+			System.out.println("Current number of whitespaces: "+whitespace);
 		}
-		else options();
+		else {
+			options();
+			return;
+		}
+		settings();
 	}
 	
 	public static void play_exam() throws NumberFormatException, IOException {
@@ -296,7 +326,11 @@ public class start {
 	        int index = rand.nextInt(subList.size());
 	        if(index==0) sol++;
 	        word+=subList.get(index);
-	        if((j+1)%letters_x==0) word+="\n";
+	        for(int k=0;k<whitespace;k++) word+=" ";
+	        if((j+1)%letters_x==0) {
+	        	word+="\n";
+	        	for(int k=0;k<whitespace;k++) word+="\n";
+	        }
         }
         System.out.println("Find how many "+subList.get(0)+"'s?:");
         System.out.println(word);	
