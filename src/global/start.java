@@ -263,21 +263,25 @@ public class start {
 	public static void end_game(int sols, LocalDateTime initial) throws NumberFormatException, IOException {
 		LocalDateTime end = LocalDateTime.now(); 
         long diff = ChronoUnit.SECONDS.between(initial, end);
-        save_final_score(sols, diff);
-        show_top_similars();
+        long id = save_final_score(sols, diff);
+        int position = show_position(id);
         System.out.println("Correct questions: "+sols+"/"+questions);
         System.out.println("Time: "+diff+" seconds");
         System.out.println("Score: "+(diff*(questions+1-sols)));
+        System.out.println("Position: "+position);
         options();
 	}
 	
-	public static void save_final_score(int sols, long diff) {
+	public static long save_final_score(int sols, long diff) {
 		try {
 			Statement st = s.connect();
-			int result = st.executeUpdate("insert into scores (questions, letters, seconds, correct, daytime) values("+questions+", "+tLetters+", "+diff+", "+sols+", CURRENT_TIMESTAMP)");
+			int result = st.executeUpdate("insert into scores (questions, letters, seconds, correct, daytime) values("+questions+", "+tLetters+", "+diff+", "+sols+", CURRENT_TIMESTAMP);", Statement.RETURN_GENERATED_KEYS);
+			ResultSet keys =  st.getGeneratedKeys();
+			while(keys.next()) return keys.getLong(1);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return -1;
 	}
 	
 	public static void show_top_similars() {
@@ -292,6 +296,21 @@ public class start {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static int show_position(long id) {
+		try {
+			Statement st = s.connect();
+			String query = """
+					select num from 
+					(select id, ROW_NUMBER() OVER(partition by questions, letters order by seconds*(questions+1-correct)) as num 
+                    from scores) as sorted where id="""+id;
+			ResultSet rs = st.executeQuery(query);
+			while(rs.next()) return rs.getInt("num");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
 	}
 	
 	public static void show_top_recents() {
